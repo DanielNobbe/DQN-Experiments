@@ -2,6 +2,9 @@ import random
 
 import torch
 
+# Code structure based on lab4 from Reinforcement Learning course at University of Amsterdam
+
+
 def get_epsilon(it):
     # YOUR CODE HERE
     annealing_time = 1000

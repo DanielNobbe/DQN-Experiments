@@ -1,6 +1,8 @@
 import torch
 from torch import nn
 
+# Code structure based on lab4 from Reinforcement Learning course at University of Amsterdam
+
 
 
 def compute_q_vals(Q, states, actions=None):
@@ -59,9 +61,8 @@ def compute_targets(Q, rewards, next_states, dones, discount_factor):
     return target
 
 
-def train(Q, memory, optimizer, batch_size, discount_factor):
-    # DO NOT MODIFY THIS FUNCTION
-    
+def train(Q, memory, optimizer, batch_size, discount_factor, target_network):
+
     # don't learn without some decent experience
     if len(memory) < batch_size:
         return None
