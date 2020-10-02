@@ -1,4 +1,4 @@
 # Ignored files by git. Add as necessary
 
 /.vscode
-
+__pycache__
