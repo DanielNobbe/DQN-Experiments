@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torch import optim
 from tqdm import tqdm as _tqdm
 import gym
+import argparse
 
 from DQN_model import QNetwork
 from DQN_replay import ReplayMemory
@@ -67,11 +68,17 @@ def main():
 
     env = gym.envs.make("CartPole-v1")
 
-    num_episodes = 1000
-    batch_size = 64
-    discount_factor = 0.8
-    learn_rate = 1e-3
-    memory = ReplayMemory(50000)
+    num_episodes = config.n_episodes
+    batch_size = config.batch_size
+    discount_factor = config.discount_factor
+    learn_rate = config.learn_rate
+
+    if config.memory_size is None:
+        memory_size = 10*batch_size
+    else:
+        memory_size = config.memory_size
+
+    memory = ReplayMemory(memory_size)
     num_hidden = 128
     seed = 48  # This is not randomly chosen
 
@@ -88,4 +95,20 @@ def main():
 
 
 if __name__=="__main__":
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--n_episodes', '-ne', type=int, default=1000, help="Number of episodes to train model.")
+    parser.add_argument('--batch_size', '-bs', type=int, default=64, help="Number of historical states to batch train with for each present state.")
+    parser.add_argument('--discount_factor', '-df', type=float, default=1.0, help="Discount factor for TD target computation.")
+    parser.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help="Learning rate for parameter updates.")
+    parser.add_argument('--memory_size', '-ms', type=int, default=None, help="Number of historical states to keep in memory") 
+    parser.add_argument('--num_hidden', '-nh', type=int, default=128, help="Hidden layer size.")
+    parser.add_argument('--seed', '-s', type=int, default=48, help="Random seed number.")
+    parser.add_argument('--env', '-e', type=str, default="CartPole-v1", help="Environment name in gym library for chosen environment.") 
+    # TODO: Maybe set up something for custom environments
+    config = parser.parse_args()
+
+    
+
     main()
