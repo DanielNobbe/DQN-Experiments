@@ -98,17 +98,15 @@ if __name__=="__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--n_episodes', '-ne', type=int, default=1000, help="Number of episodes to train model.")
+    parser.add_argument('--n_episodes', '-ne', type=int, default=100, help="Number of episodes to train model.")
     parser.add_argument('--batch_size', '-bs', type=int, default=64, help="Number of historical states to batch train with for each present state.")
-    parser.add_argument('--discount_factor', '-df', type=float, default=1.0, help="Discount factor for TD target computation.")
+    parser.add_argument('--discount_factor', '-df', type=float, default=0.8, help="Discount factor for TD target computation.")
     parser.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help="Learning rate for parameter updates.")
-    parser.add_argument('--memory_size', '-ms', type=int, default=None, help="Number of historical states to keep in memory") 
+    parser.add_argument('--memory_size', '-ms', type=int, default=10000, help="Number of historical states to keep in memory")
     parser.add_argument('--num_hidden', '-nh', type=int, default=128, help="Hidden layer size.")
-    parser.add_argument('--seed', '-s', type=int, default=48, help="Random seed number.")
+    parser.add_argument('--seed', '-s', type=int, default=42, help="Random seed number.")
     parser.add_argument('--env', '-e', type=str, default="CartPole-v1", help="Environment name in gym library for chosen environment.") 
     # TODO: Maybe set up something for custom environments
     config = parser.parse_args()
-
-    
 
     main()
