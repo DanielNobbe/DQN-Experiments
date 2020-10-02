@@ -6,15 +6,17 @@ from torch import nn
 
 class QNetwork(nn.Module):
     
-    def __init__(self, num_hidden=128):
+    def __init__(self, num_hidden=128, device=torch.device('cpu')):
         nn.Module.__init__(self)
         self.l1 = nn.Linear(4, num_hidden)
         self.l2 = nn.Linear(num_hidden, 2)
+        self.device = device
+        self.to(device)
 
     def forward(self, x):
-        x = torch.Tensor(x) # Seems like this does nothing, even when numpy gets passed into Q
+        x = torch.tensor(x, device=self.device) # Seems like this does nothing, even when numpy gets passed into Q
         layer_1 = self.l1(x)
-        hidden = nn.functional.relu(layer_1) # Apply activation function as function rather than later
+        hidden = nn.functional.relu(layer_1) # Apply activation function as function rather than layer
         output = self.l2(hidden)
         return output
 

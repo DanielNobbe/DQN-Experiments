@@ -74,11 +74,11 @@ def train(Q, memory, optimizer, batch_size, discount_factor, target_network):
     state, action, reward, next_state, done = zip(*transitions)
     
     # convert to PyTorch and define types
-    state = torch.tensor(state, dtype=torch.float)
-    action = torch.tensor(action, dtype=torch.int64)[:, None]  # Need 64 bit to use them as index
-    next_state = torch.tensor(next_state, dtype=torch.float)
-    reward = torch.tensor(reward, dtype=torch.float)[:, None]
-    done = torch.tensor(done, dtype=torch.uint8)[:, None]  # Boolean
+    state = torch.tensor(state, dtype=torch.float, device=Q.device)
+    action = torch.tensor(action, dtype=torch.int64, device=Q.device)[:, None]  # Need 64 bit to use them as index
+    next_state = torch.tensor(next_state, dtype=torch.float, device=Q.device)
+    reward = torch.tensor(reward, dtype=torch.float, device=Q.device)[:, None]
+    done = torch.tensor(done, dtype=torch.uint8, device=Q.device)[:, None]  # Boolean
     
     # compute the q value
     q_val = compute_q_vals(Q, state, action)

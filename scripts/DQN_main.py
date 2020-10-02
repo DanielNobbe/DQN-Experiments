@@ -27,7 +27,7 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
     optimizer = optim.Adam(Q.parameters(), learn_rate)
 
     if clone_interval is not None:
-        target_network = copy.deepcopy(Q)
+        target_network = copy.deepcopy(Q).to(Q.device)
     else:
         target_network = Q
 
@@ -65,7 +65,7 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
             if clone_interval is not None:
                 if global_steps % clone_interval == 0:
                     print("Updating target network")
-                    target_network = copy.deepcopy(Q)
+                    target_network = copy.deepcopy(Q).to(Q.device)
 
             if done:
                 if i % 10 == 0:
@@ -79,6 +79,14 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
 
 def main():
     print("Running DQN")
+
+    if config.cuda:
+        assert torch.cuda.is_available(), "CUDA not available, aborting.."
+        device = torch.device('cuda')
+        print("Running on CUDA")
+    else:
+        device = torch.device('cpu')
+
 
     env = gym.envs.make("CartPole-v1")
 
@@ -101,9 +109,10 @@ def main():
     # We will seed the algorithm (before initializing QNetwork!) for reproducibility
     random.seed(seed)
     torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
     env.seed(seed)
 
-    Q_net = QNetwork(num_hidden)
+    Q_net = QNetwork(num_hidden, device)
     policy = EpsilonGreedyPolicy(Q_net, 0.05)
     episode_durations = run_episodes(train, Q_net, policy, memory, env, num_episodes, batch_size, discount_factor, learn_rate, config.clone_interval)
 
@@ -123,6 +132,7 @@ if __name__=="__main__":
     parser.add_argument('--seed', '-s', type=int, default=42, help="Random seed number.")
     parser.add_argument('--env', '-e', type=str, default="CartPole-v1", help="Environment name in gym library for chosen environment.") 
     parser.add_argument('--clone_interval', '-tn', type=int, default=None, help="Clone interval for target network updating. If not defined, target network is updated every step.")
+    parser.add_argument('--cuda', '-c', action='store_true', help="Enable cuda.")
     # TODO: Maybe set up something for custom environments
     config = parser.parse_args()
 

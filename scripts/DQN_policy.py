@@ -43,7 +43,7 @@ class EpsilonGreedyPolicy(object):
             return random.choice(range(2))
         else:
             # This means we need to use the policy network
-            obs = torch.Tensor(obs) # Stays Tensor if it was already one, becomes tensor if not
+            obs = torch.tensor(obs, dtype=torch.float, device=self.Q.device) # Stays Tensor if it was already one, becomes tensor if not
             action = torch.argmax(self.Q(obs)).item()
             return action
         
