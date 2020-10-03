@@ -1,6 +1,9 @@
 import torch
 from torch import nn
 
+# Code structure based on lab4 from Reinforcement Learning course at University of Amsterdam
+
+
 class QNetwork(nn.Module):
     
     def __init__(self, in_size, out_size, num_hidden=128):

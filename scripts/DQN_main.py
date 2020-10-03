@@ -8,6 +8,7 @@ from torch import optim
 from tqdm import tqdm as _tqdm
 import gym
 import argparse
+import copy
 
 from DQN_model import QNetwork
 from DQN_replay import ReplayMemory
@@ -16,16 +17,22 @@ from DQN_training import train
 from DQN_plots import plot_smooth
 
 
+# Code structure based on lab4 from Reinforcement Learning course at University of Amsterdam
 
 # Note sure if necessary TODO
 def tqdm(*args, **kwargs):
     return _tqdm(*args, **kwargs, mininterval=1)  # Safety, do not overflow buffer
 
-def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discount_factor, learn_rate,
+def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discount_factor, learn_rate, clone_interval,
                  min_eps, max_eps, anneal_time):
     
     optimizer = optim.Adam(Q.parameters(), learn_rate)
-    
+
+    if clone_interval is not None:
+        target_network = copy.deepcopy(Q)
+    else:
+        target_network = Q
+
     global_steps = 0  # Count the steps (do not reset at episode start, to compute epsilon)
     episode_durations = []  
     for i in range(num_episodes):
@@ -53,7 +60,7 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
             state = s_next
             
             # Now that we have added a transition, we should try to train based on our memory
-            loss = train(Q, memory, optimizer, batch_size, discount_factor)
+            loss = train(Q, memory, optimizer, batch_size, discount_factor, target_network)
             # This is like online learning, we could also only train once per episode
             
             steps += 1
@@ -63,6 +70,11 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
             if r is not None:
                 rewards += r
             
+            if clone_interval is not None:
+                if global_steps % clone_interval == 0:
+                    # print("Updating target network")
+                    target_network = copy.deepcopy(Q)
+
             if done:
                 if i % 10 == 0:
                     # loss and rewards are avg loss and reward per step
@@ -96,11 +108,14 @@ def main():
     min_eps = config.min_eps
     max_eps = config.max_eps
     anneal_time = config.anneal_time
+    clone_interval = config.clone_interval
 
     if config.memory_size is None:
         memory_size = 10*batch_size
     else:
         memory_size = config.memory_size
+
+
 
     memory = ReplayMemory(memory_size)
 
@@ -112,7 +127,7 @@ def main():
     Q_net = QNetwork(obs_size, num_actions , num_hidden=num_hidden)
     policy = EpsilonGreedyPolicy(Q_net, 0.05)
     episode_durations = run_episodes(train, Q_net, policy, memory, env, num_episodes, batch_size, discount_factor,
-                                     learn_rate, min_eps, max_eps, anneal_time)
+                                     learn_rate, clone_interval, min_eps, max_eps, anneal_time)
 
     plot_smooth(episode_durations, 10)
 
@@ -132,6 +147,7 @@ if __name__=="__main__":
     parser.add_argument('--num_hidden', '-nh', type=int, default=128, help="Hidden layer size.")
     parser.add_argument('--seed', '-s', type=int, default=42, help="Random seed number.")
     parser.add_argument('--env', '-e', type=str, default="CartPole-v1", help="Environment name in gym library for chosen environment.") 
+    parser.add_argument('--clone_interval', '-tn', type=int, default=None, help="Clone interval for target network updating. If not defined, target network is updated every step.")
     # TODO: Maybe set up something for custom environments
     config = parser.parse_args()
 
