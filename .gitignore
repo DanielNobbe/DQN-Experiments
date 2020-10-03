@@ -1,4 +1,7 @@
 # Ignored files by git. Add as necessary
 
+.idea/
+*.DS_Store
+*/__pycache__/* #could be double after PR
 /.vscode
 __pycache__
