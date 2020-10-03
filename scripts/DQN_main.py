@@ -21,7 +21,8 @@ from DQN_plots import plot_smooth
 def tqdm(*args, **kwargs):
     return _tqdm(*args, **kwargs, mininterval=1)  # Safety, do not overflow buffer
 
-def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discount_factor, learn_rate):
+def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discount_factor, learn_rate,
+                 min_eps, max_eps, anneal_time):
     
     optimizer = optim.Adam(Q.parameters(), learn_rate)
     
@@ -38,7 +39,7 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
 
             # Update epsilon
             # Should be before first sampled action, otherwise epsilon too low
-            policy.set_epsilon(get_epsilon(global_steps))
+            policy.set_epsilon(get_epsilon(global_steps, min_eps, max_eps, anneal_time))
             
             # So first sample an action
             sampled_action = policy.sample_action(state)
@@ -92,6 +93,9 @@ def main():
     learn_rate = config.learn_rate
     seed = config.seed
     num_hidden = config.num_hidden
+    min_eps = config.min_eps
+    max_eps = config.max_eps
+    anneal_time = config.anneal_time
 
     if config.memory_size is None:
         memory_size = 10*batch_size
@@ -107,7 +111,8 @@ def main():
 
     Q_net = QNetwork(obs_size, num_actions , num_hidden=num_hidden)
     policy = EpsilonGreedyPolicy(Q_net, 0.05)
-    episode_durations = run_episodes(train, Q_net, policy, memory, env, num_episodes, batch_size, discount_factor, learn_rate)
+    episode_durations = run_episodes(train, Q_net, policy, memory, env, num_episodes, batch_size, discount_factor,
+                                     learn_rate, min_eps, max_eps, anneal_time)
 
     plot_smooth(episode_durations, 10)
 
@@ -118,6 +123,9 @@ if __name__=="__main__":
 
     parser.add_argument('--n_episodes', '-ne', type=int, default=100, help="Number of episodes to train model.")
     parser.add_argument('--batch_size', '-bs', type=int, default=64, help="Number of historical states to batch train with for each present state.")
+    parser.add_argument('--min_eps', type=int, default=0.05, help="Minimum epsilon after annealing.")
+    parser.add_argument('--max_eps', type=int, default=1, help="Maximum epsilon before annealing.")
+    parser.add_argument('--anneal_time', type=int, default=1000, help="Number of steps before reaching eps_min.")
     parser.add_argument('--discount_factor', '-df', type=float, default=0.8, help="Discount factor for TD target computation.")
     parser.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help="Learning rate for parameter updates.")
     parser.add_argument('--memory_size', '-ms', type=int, default=10000, help="Number of historical states to keep in memory")

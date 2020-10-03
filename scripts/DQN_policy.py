@@ -2,13 +2,9 @@ import random
 
 import torch
 
-def get_epsilon(it):
+def get_epsilon(it,  min_eps, max_eps, annealing_time):
     # YOUR CODE HERE
-    annealing_time = 1000
     progress = it/annealing_time
-    
-    max_eps = 1
-    min_eps = 0.05
     epsilon = max(max_eps - (max_eps - min_eps) * progress, min_eps)
     
     return epsilon
