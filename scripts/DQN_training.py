@@ -83,7 +83,7 @@ def train(Q, memory, optimizer, batch_size, discount_factor, target_network):
     # compute the q value
     q_val = compute_q_vals(Q, state, action)
     with torch.no_grad():  # Don't compute gradient info for the target (semi-gradient)
-        target = compute_targets(Q, reward, next_state, done, discount_factor)
+        target = compute_targets(target_network, reward, next_state, done, discount_factor)
     
     # loss is measured from error between current and newly expected Q values
     loss = nn.functional.smooth_l1_loss(q_val, target)
