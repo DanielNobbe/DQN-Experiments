@@ -2,7 +2,6 @@ import numpy as np
 import random
 import torch
 import os
-import matplotlib.pyplot as plt
 from torch import nn
 import torch.nn.functional as F
 from torch import optim
@@ -30,7 +29,8 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
     episode_durations = []  
     for i in range(num_episodes):
         state = env.reset()
-        
+        losses = 0.
+        rewards = 0.
         steps = 0
         while True:
             # So it seems like here we should sample an episode,
@@ -57,12 +57,16 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
             
             steps += 1
             global_steps += 1
+            if loss is not None:
+                losses += loss
+            if r is not None:
+                rewards += r
             
             if done:
                 if i % 10 == 0:
-                    print("{2} Episode {0} finished after {1} steps"
-                          .format(i, steps, '\033[92m' if steps >= 195 else '\033[99m'))
-                    print("epsilon: ", policy.epsilon)
+                    # loss and rewards are avg loss and reward per step
+                    print("[{:<4} done: step {:<5}| loss: {:<8.5} | rewards: {:8<.5} | eps: {:<6.5}"
+                        .format(str(i)+"]",steps, losses/steps, rewards/steps, policy.epsilon))
                 episode_durations.append(steps)
                 #plot_durations()
                 break
@@ -73,7 +77,14 @@ def main():
 
     env_name = config.env
     print("Playing:", env_name)
-    env = gym.envs.make(env_name)
+    env = gym.make(env_name)
+
+    # not 100 % sure this will work for all envs
+    obs_shape = env.observation_space.shape
+    num_actions = env.action_space.n
+    assert len(obs_shape) == 1, "Not yet compatible with multi-dim observation space"
+    obs_size = obs_shape[0]
+
 
     num_episodes = config.n_episodes
     batch_size = config.batch_size
@@ -94,12 +105,11 @@ def main():
     torch.manual_seed(seed)
     env.seed(seed)
 
-    Q_net = QNetwork(num_hidden)
+    Q_net = QNetwork(obs_size, num_actions , num_hidden=num_hidden)
     policy = EpsilonGreedyPolicy(Q_net, 0.05)
     episode_durations = run_episodes(train, Q_net, policy, memory, env, num_episodes, batch_size, discount_factor, learn_rate)
 
     plot_smooth(episode_durations, 10)
-    plt.show()
 
 
 if __name__=="__main__":
