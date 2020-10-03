@@ -2,6 +2,9 @@ import torch
 from torch import nn
 import random
 
+# Code structure based on lab4 from Reinforcement Learning course at University of Amsterdam
+
+
 class ReplayMemory:
     
     def __init__(self, capacity):
