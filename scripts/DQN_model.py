@@ -12,10 +12,14 @@ class QNetwork(nn.Module):
         self.l2 = nn.Linear(num_hidden, out_size)
 
     def forward(self, x):
-        x = torch.Tensor(x) # Seems like this does nothing, even when numpy gets passed into Q
+        if len(x.shape) == 0:
+            x = x.unsqueeze(dim=0)
+        x = torch.tensor(x) # Seems like this does nothing, even when numpy gets passed into Q
         layer_1 = self.l1(x)
         hidden = nn.functional.relu(layer_1) # Apply activation function as function rather than later
         output = self.l2(hidden)
+        if len(output.shape) == 1:
+            output = output.unsqueeze(dim=0)
         return output
 
 
