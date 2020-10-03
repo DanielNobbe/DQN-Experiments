@@ -42,7 +42,7 @@ class EpsilonGreedyPolicy(object):
         probs = [self.epsilon / self.num_actions for i in range(self.num_actions)]
 
         probs[a_greedy] += 1 - self.epsilon
-        assert sum(probs) == 1, "Probabilies should sum to 1"
+        assert np.allclose(sum(probs), 1), "Probabilies should sum to 1"
         return np.random.choice(range(self.num_actions), p=probs)
         
     def set_epsilon(self, epsilon):

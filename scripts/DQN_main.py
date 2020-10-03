@@ -77,8 +77,8 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
             if done:
                 if i % 10 == 0:
                     # loss and rewards are avg loss and reward per step
-                    print("[{:<4} done: step {:<5}| loss: {:<8.5} | rewards: {:8<.5} | eps: {:<6.5}"
-                        .format(str(i)+"]",steps, losses/steps, rewards/steps, policy.epsilon))
+                    print("[{:<4} done: step {:<5}| loss: {:<8.5} | eps: {:<6.5}"
+                        .format(str(i)+"]",steps, losses/steps, policy.epsilon))
                 episode_durations.append(steps)
                 #plot_durations()
                 break
@@ -137,9 +137,9 @@ if __name__=="__main__":
 
     parser.add_argument('--n_episodes', '-ne', type=int, default=100, help="Number of episodes to train model.")
     parser.add_argument('--batch_size', '-bs', type=int, default=64, help="Number of historical states to batch train with for each present state.")
-    parser.add_argument('--min_eps', type=int, default=0.05, help="Minimum epsilon after annealing.")
-    parser.add_argument('--max_eps', type=int, default=1, help="Maximum epsilon before annealing.")
-    parser.add_argument('--anneal_time', type=int, default=1000, help="Number of steps before reaching eps_min.")
+    parser.add_argument('--min_eps', '-me', type=int, default=0.05, help="Minimum epsilon after annealing.")
+    parser.add_argument('--max_eps', '-mxe', type=int, default=1, help="Maximum epsilon before annealing.")
+    parser.add_argument('--anneal_time', '-at', type=int, default=1000, help="Number of steps before reaching eps_min.")
     parser.add_argument('--discount_factor', '-df', type=float, default=0.8, help="Discount factor for TD target computation.")
     parser.add_argument('--learn_rate', '-lr', type=float, default=1e-3, help="Learning rate for parameter updates.")
     parser.add_argument('--memory_size', '-ms', type=int, default=10000, help="Number of historical states to keep in memory")
