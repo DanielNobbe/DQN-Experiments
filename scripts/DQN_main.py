@@ -1,7 +1,6 @@
 import numpy as np
 import random
 import torch
-import os
 from torch import nn
 import torch.nn.functional as F
 from torch import optim
@@ -150,8 +149,3 @@ if __name__=="__main__":
     config = parser.parse_args()
 
     main()
-
-    # delete before merge
-    for fname in os.listdir("__pycache__"):
-        os.remove("__pycache__/"+fname)
-    os.rmdir("__pycache__")
