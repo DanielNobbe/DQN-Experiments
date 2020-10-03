@@ -3,8 +3,9 @@ import numpy as np
 
 import torch
 
+# Code structure based on lab4 from Reinforcement Learning course at University of Amsterdam
+
 def get_epsilon(it,  min_eps, max_eps, annealing_time):
-    # YOUR CODE HERE
     progress = it/annealing_time
     epsilon = max(max_eps - (max_eps - min_eps) * progress, min_eps)
     
@@ -39,7 +40,7 @@ class EpsilonGreedyPolicy(object):
         probs = [self.epsilon / self.num_actions for i in range(self.num_actions)]
 
         probs[a_greedy] += 1 - self.epsilon
-        assert sum(probs) == 1, "Probabilies should sum to 1"
+        assert np.allclose(sum(probs), 1), "Probabilies should sum to 1"
         return np.random.choice(range(self.num_actions), p=probs)
         
     def set_epsilon(self, epsilon):
