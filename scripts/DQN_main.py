@@ -64,7 +64,7 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
             
             if clone_interval is not None:
                 if global_steps % clone_interval == 0:
-                    print("Updating target network")
+                    # print("Updating target network")
                     target_network = copy.deepcopy(Q)
 
             if done:
