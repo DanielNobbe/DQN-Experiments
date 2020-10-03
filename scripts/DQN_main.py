@@ -24,7 +24,7 @@ def tqdm(*args, **kwargs):
     return _tqdm(*args, **kwargs, mininterval=1)  # Safety, do not overflow buffer
 
 def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discount_factor, learn_rate,
-                 min_eps, max_eps, anneal_time):
+                 min_eps, max_eps, anneal_time, clone_interval):
     
     optimizer = optim.Adam(Q.parameters(), learn_rate)
 
@@ -133,7 +133,7 @@ def main():
     Q_net = QNetwork(obs_size, num_actions, num_hidden=num_hidden)
     policy = EpsilonGreedyPolicy(Q_net, num_actions)
     episode_durations = run_episodes(train, Q_net, policy, memory, env, num_episodes, batch_size, discount_factor,
-                                     learn_rate, min_eps, max_eps, anneal_time)
+                                     learn_rate, min_eps, max_eps, anneal_time, config.clone_interval)
 
     plot_smooth(episode_durations, 10)
 
