@@ -122,7 +122,7 @@ def main():
     env.seed(seed)
 
     Q_net = QNetwork(obs_size, num_actions , num_hidden=num_hidden)
-    policy = EpsilonGreedyPolicy(Q_net, 0.05)
+    policy = EpsilonGreedyPolicy(Q_net, num_actions)
     episode_durations = run_episodes(train, Q_net, policy, memory, env, num_episodes, batch_size, discount_factor,
                                      learn_rate, min_eps, max_eps, anneal_time)
 

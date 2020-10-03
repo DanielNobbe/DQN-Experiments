@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 import torch
 
@@ -14,9 +15,10 @@ class EpsilonGreedyPolicy(object):
     """
     A simple epsilon greedy policy.
     """
-    def __init__(self, Q, epsilon):
+    def __init__(self, Q, num_actions):
         self.Q = Q
-        self.epsilon = epsilon
+        self.epsilon = None  # need to set epsilon to avoid confusion
+        self.num_actions = num_actions
     
     def sample_action(self, obs):
         """
@@ -29,16 +31,16 @@ class EpsilonGreedyPolicy(object):
             An action (int).
         """
         # YOUR CODE HERE
-        # So we first need to choose whether we are taking a random action or a policy action
-        if random.choices([True, False], weights=[self.epsilon, 1-self.epsilon], k=1)[0]:
-            # This means we need to make a random choice for the action to be performed
-            # The size of the output layer of Q_net is hardcoded as 2, so we will do that here too
-            return random.choice(range(2))
-        else:
-            # This means we need to use the policy network
-            obs = torch.Tensor(obs) # Stays Tensor if it was already one, becomes tensor if not
-            action = torch.argmax(self.Q(obs)).item()
-            return action
+        # This piece of code was copied and altered from our version of lab4 - Yke
+        with torch.no_grad():
+            obs_tensor = torch.tensor(obs).type(torch.FloatTensor)
+            model_output = self.Q(obs_tensor)
+            a_greedy = torch.argmax(model_output).item()
+        probs = [self.epsilon / self.num_actions for i in range(self.num_actions)]
+
+        probs[a_greedy] += 1 - self.epsilon
+        assert sum(probs) == 1, "Probabilies should sum to 1"
+        return np.random.choice(range(self.num_actions), p=probs)
         
     def set_epsilon(self, epsilon):
         self.epsilon = epsilon
