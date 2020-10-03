@@ -35,6 +35,10 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
         while True:
             # So it seems like here we should sample an episode,
             # and every step update the weights
+
+            # Update epsilon
+            # Should be before first sampled action, otherwise epsilon too low
+            policy.set_epsilon(get_epsilon(global_steps))
             
             # So first sample an action
             sampled_action = policy.sample_action(state)
@@ -53,9 +57,6 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
             
             steps += 1
             global_steps += 1
-            
-            # Update epsilon
-            policy.set_epsilon(get_epsilon(global_steps))
             
             if done:
                 if i % 10 == 0:
