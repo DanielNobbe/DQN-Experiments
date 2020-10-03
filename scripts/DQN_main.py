@@ -1,6 +1,8 @@
 import numpy as np
 import random
 import torch
+import os
+import matplotlib.pyplot as plt
 from torch import nn
 import torch.nn.functional as F
 from torch import optim
@@ -13,6 +15,8 @@ from DQN_replay import ReplayMemory
 from DQN_policy import EpsilonGreedyPolicy, get_epsilon
 from DQN_training import train
 from DQN_plots import plot_smooth
+
+
 
 # Note sure if necessary TODO
 def tqdm(*args, **kwargs):
@@ -66,12 +70,16 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
 def main():
     print("Running DQN")
 
-    env = gym.envs.make("CartPole-v1")
+    env_name = config.env
+    print("Playing:", env_name)
+    env = gym.envs.make(env_name)
 
     num_episodes = config.n_episodes
     batch_size = config.batch_size
     discount_factor = config.discount_factor
     learn_rate = config.learn_rate
+    seed = config.seed
+    num_hidden = config.num_hidden
 
     if config.memory_size is None:
         memory_size = 10*batch_size
@@ -79,8 +87,6 @@ def main():
         memory_size = config.memory_size
 
     memory = ReplayMemory(memory_size)
-    num_hidden = 128
-    seed = 48  # This is not randomly chosen
 
     # We will seed the algorithm (before initializing QNetwork!) for reproducibility
     random.seed(seed)
@@ -92,6 +98,7 @@ def main():
     episode_durations = run_episodes(train, Q_net, policy, memory, env, num_episodes, batch_size, discount_factor, learn_rate)
 
     plot_smooth(episode_durations, 10)
+    plt.show()
 
 
 if __name__=="__main__":
@@ -110,3 +117,8 @@ if __name__=="__main__":
     config = parser.parse_args()
 
     main()
+
+    # delete before merge
+    for fname in os.listdir("__pycache__"):
+        os.remove("__pycache__/"+fname)
+    os.rmdir("__pycache__")
