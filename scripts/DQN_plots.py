@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 # Code structure based on lab4 from Reinforcement Learning course at University of Amsterdam
 
 

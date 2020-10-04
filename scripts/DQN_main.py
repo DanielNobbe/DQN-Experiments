@@ -8,13 +8,14 @@ from tqdm import tqdm as _tqdm
 import gym
 import argparse
 import copy
+from gridworld import GridworldEnv
+
 
 from DQN_model import QNetwork
 from DQN_replay import ReplayMemory
 from DQN_policy import EpsilonGreedyPolicy, get_epsilon
 from DQN_training import train
 from DQN_plots import plot_smooth
-
 
 # Code structure based on lab4 from Reinforcement Learning course at University of Amsterdam
 
@@ -87,15 +88,22 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
 def main():
     print("Running DQN")
 
-    env_name = config.env
-    print("Playing:", env_name)
-    env = gym.make(env_name)
+    if config.env == "GridWorldEnv":
+        print("Playing: ", config.env)
+        env = GridworldEnv()
+    else:
+        env_name = config.env
+        print("Playing:", env_name)
+        env = gym.make(env_name)
 
     # not 100 % sure this will work for all envs
     obs_shape = env.observation_space.shape
     num_actions = env.action_space.n
-    assert len(obs_shape) == 1, "Not yet compatible with multi-dim observation space"
-    obs_size = obs_shape[0]
+    assert len(obs_shape) <= 1, "Not yet compatible with multi-dim observation space"
+    if len(obs_shape) > 0: 
+        obs_size = obs_shape[0]
+    else:
+        obs_size = 1
 
 
     num_episodes = config.n_episodes
@@ -123,7 +131,7 @@ def main():
     torch.manual_seed(seed)
     env.seed(seed)
 
-    Q_net = QNetwork(obs_size, num_actions , num_hidden=num_hidden)
+    Q_net = QNetwork(obs_size, num_actions, num_hidden=num_hidden)
     policy = EpsilonGreedyPolicy(Q_net, num_actions)
     episode_durations = run_episodes(train, Q_net, policy, memory, env, num_episodes, batch_size, discount_factor,
                                      learn_rate, clone_interval, min_eps, max_eps, anneal_time)

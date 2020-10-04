@@ -6,8 +6,6 @@ import torch
 # Code structure based on lab4 from Reinforcement Learning course at University of Amsterdam
 
 def get_epsilon(it,  min_eps, max_eps, annealing_time):
-
-    # YOUR CODE HERE
     progress = it/annealing_time
     epsilon = max(max_eps - (max_eps - min_eps) * progress, min_eps)
     

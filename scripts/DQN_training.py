@@ -19,6 +19,7 @@ def compute_q_vals(Q, states, actions=None):
     """
     all_actions = Q(states)
     if not actions is None:
+        # So far only compatible with a single action dimension per timestep
         Q_values = all_actions[range(all_actions.shape[0]), actions.squeeze().tolist()].unsqueeze(dim=1)
     else: # If actions are not defined, we take the best action's Q-value
         Q_values, _ = all_actions.max(dim=1, keepdim=True)
@@ -64,11 +65,11 @@ def compute_targets(Q, rewards, next_states, dones, discount_factor):
 def train(Q, memory, optimizer, batch_size, discount_factor, target_network):
 
     # don't learn without some decent experience
-    if len(memory) < batch_size:
+    if len(memory) < batch_size and memory.capacity >= batch_size:
         return None
 
     # random transition batch is taken from experience replay memory
-    transitions = memory.sample(batch_size)
+    transitions = memory.sample(min(batch_size, memory.capacity))
     
     # transition is a list of 4-tuples, instead we want 4 vectors (as torch.Tensor's)
     state, action, reward, next_state, done = zip(*transitions)
