@@ -73,7 +73,7 @@ def run_episodes(train, Q, policy, memory, env, num_episodes, batch_size, discou
             state = s_next
             
             # Now that we have added a transition, we should try to train based on our memory
-            loss, max_abs_q = train(Q, memory, optimizer, batch_size, discount_factor, target_network, replay)
+            loss, max_abs_q = train(Q, memory, optimizer, batch_size, discount_factor, target_network)
             # This is like online learning, we could also only train once per episode
             
             steps += 1
@@ -141,6 +141,11 @@ def main():
         memory_size = 10*batch_size
     else:
         memory_size = config.memory_size
+
+    if not replay and (batch_size != 1 or memory_size != 1):
+        print("Replay is turned off: adjusting memory and batch size to 1")
+        batch_size = 1
+        memory_size = 1
 
     memory = ReplayMemory(memory_size)
 

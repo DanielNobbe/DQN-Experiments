@@ -17,11 +17,8 @@ class ReplayMemory:
                                # but that requires quite extensive error handling which is not important here
         self.memory.append(transition)
 
-    def sample(self, batch_size, replay):
-        if replay:
-            return random.sample(self.memory, batch_size)
-        else:
-            return self.memory[-batch_size:]
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
 
     def __len__(self):
         return len(self.memory)
