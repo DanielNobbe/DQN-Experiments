@@ -62,14 +62,14 @@ def compute_targets(Q, rewards, next_states, dones, discount_factor):
     return target
 
 
-def train(Q, memory, optimizer, batch_size, discount_factor, target_network):
+def train(Q, memory, optimizer, batch_size, discount_factor, target_network, replay):
 
     # don't learn without some decent experience
     if len(memory) < batch_size and memory.capacity >= batch_size:
-        return None
+        return None, None
 
     # random transition batch is taken from experience replay memory
-    transitions = memory.sample(min(batch_size, memory.capacity))
+    transitions = memory.sample(min(batch_size, memory.capacity), replay)
     
     # transition is a list of 4-tuples, instead we want 4 vectors (as torch.Tensor's)
     state, action, reward, next_state, done = zip(*transitions)
@@ -93,5 +93,5 @@ def train(Q, memory, optimizer, batch_size, discount_factor, target_network):
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-    
-    return loss.item()  # Returns a Python scalar, and releases history (similar to .detach())
+
+    return loss.item(), q_val.abs().max().item()  # Returns a Python scalar, and releases history (similar to .detach())
