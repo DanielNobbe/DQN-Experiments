@@ -66,7 +66,7 @@ def train(Q, memory, optimizer, batch_size, discount_factor, target_network):
 
     # don't learn without some decent experience
     if len(memory) < batch_size and memory.capacity >= batch_size:
-        return None
+        return None, None
 
     # random transition batch is taken from experience replay memory
     transitions = memory.sample(min(batch_size, memory.capacity))
@@ -93,5 +93,5 @@ def train(Q, memory, optimizer, batch_size, discount_factor, target_network):
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-    
-    return loss.item()  # Returns a Python scalar, and releases history (similar to .detach())
+
+    return loss.item(), q_val.abs().max().item()  # Returns a Python scalar, and releases history (similar to .detach())

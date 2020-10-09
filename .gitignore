@@ -5,3 +5,4 @@
 */__pycache__/* #could be double after PR
 /.vscode
 __pycache__
+.ipynb_checkpoints
